@@ -3,7 +3,7 @@
 set -e # fail fast
 set -x # print commands
 
-git clone resource-gist updated-gist
+git clone resource-gist2 updated-gist
 
 cd updated-gist
 echo 'from run2' > bumpme2
