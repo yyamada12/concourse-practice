@@ -8,6 +8,7 @@ git clone resource-gist2 updated-gist
 cd updated-gist
 echo 'from run2' > bumpme2
 date >> bumpme2
+sleep 30
 
 git config --global user.email "nobody@concourse-ci.org"
 git config --global user.name "Concourse"
