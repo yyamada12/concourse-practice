@@ -11,12 +11,19 @@ resources:
       branch: master
       uri: ((publishing-outputs-gist-uri))
       private_key: ((publishing-outputs-private-key))
+  - name: resource-gist2
+    type: git
+    source:
+      branch: master
+      uri: ((publishing-outputs-gist-uri2))
+      private_key: ((publishing-outputs-private-key))
 
 jobs:
   - name: job-bump-date
     serial: true
     plan:
       - get: resource-practice
+        trigger: true
       - get: resource-gist
       - task: bump-timestamp-file
         config:
@@ -30,8 +37,30 @@ jobs:
           outputs:
             - name: updated-gist
           run:
-            path: resource-practice/tutorials/basic/publishing-outputs/bump-timestamp-file.sh
+            path: resource-practice/test1/run1.sh
       - put: resource-gist
+        params: {repository: updated-gist}
+
+  - name: job-bump-date2
+    serial: true
+    plan:
+      - get: resource-practice
+        trigger: true
+      - get: resource-gist2
+      - task: bump-timestamp-file
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: starkandwayne/concourse}
+          inputs:
+            - name: resource-practice
+            - name: resource-gist2
+          outputs:
+            - name: updated-gist
+          run:
+            path: resource-practice/test1/run2.sh
+      - put: resource-gist2
         params: {repository: updated-gist}
 
   - name: job-show-date
@@ -39,6 +68,9 @@ jobs:
       - get: resource-practice
       - get: resource-gist
         passed: [job-bump-date]
+        trigger: true
+      - get: resource-gist2
+        passed: [job-bump-date2]
         trigger: true
       - task: show-date
         config:
