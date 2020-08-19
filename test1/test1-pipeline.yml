@@ -1,0 +1,53 @@
+---
+resources:
+  - name: resource-practice
+    type: git
+    source:
+      uri: https://github.com/yyamada12/concourse-practice.git
+      branch: master
+  - name: resource-gist
+    type: git
+    source:
+      branch: master
+      uri: ((publishing-outputs-gist-uri))
+      private_key: ((publishing-outputs-private-key))
+
+jobs:
+  - name: job-bump-date
+    serial: true
+    plan:
+      - get: resource-practice
+      - get: resource-gist
+      - task: bump-timestamp-file
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: starkandwayne/concourse}
+          inputs:
+            - name: resource-practice
+            - name: resource-gist
+          outputs:
+            - name: updated-gist
+          run:
+            path: resource-practice/tutorials/basic/publishing-outputs/bump-timestamp-file.sh
+      - put: resource-gist
+        params: {repository: updated-gist}
+
+  - name: job-show-date
+    plan:
+      - get: resource-practice
+      - get: resource-gist
+        passed: [job-bump-date]
+        trigger: true
+      - task: show-date
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: busybox}
+          inputs:
+            - name: resource-gist
+          run:
+            path: cat
+            args: [resource-gist/bumpme]
