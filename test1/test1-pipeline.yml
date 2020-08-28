@@ -21,7 +21,7 @@ resources:
 jobs:
   - name: job-bump-date
     serial_groups:
-        - group1
+      - group1
     plan:
       - get: resource-practice
         trigger: true
@@ -31,7 +31,7 @@ jobs:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: starkandwayne/concourse}
+            source: { repository: starkandwayne/concourse }
           inputs:
             - name: resource-practice
             - name: resource-gist
@@ -40,11 +40,11 @@ jobs:
           run:
             path: resource-practice/test1/run1.sh
       - put: resource-gist
-        params: {repository: updated-gist}
+        params: { repository: updated-gist }
 
   - name: job-bump-date2
     serial_groups:
-        - group2
+      - group2
     plan:
       - get: resource-practice
         trigger: true
@@ -54,7 +54,7 @@ jobs:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: starkandwayne/concourse}
+            source: { repository: starkandwayne/concourse }
           inputs:
             - name: resource-practice
             - name: resource-gist2
@@ -63,16 +63,16 @@ jobs:
           run:
             path: resource-practice/test1/run2.sh
       - put: resource-gist2
-        params: {repository: updated-gist}
+        params: { repository: updated-gist }
 
   - name: job-show-date
     serial_groups:
-        - group1
-        - group2
+      - group1
+      - group2
     plan:
       - get: resource-practice
       - get: resource-gist
-        passed: [job-bump-date]
+        # passed: [job-bump-date]
         trigger: true
       - get: resource-gist2
         passed: [job-bump-date2]
@@ -82,7 +82,7 @@ jobs:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: busybox}
+            source: { repository: busybox }
           inputs:
             - name: resource-gist
             - name: resource-gist2
